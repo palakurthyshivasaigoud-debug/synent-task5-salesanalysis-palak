@@ -10,7 +10,7 @@ A retail business needs to understand where revenue is coming from and where pro
 
 ## Dataset
 
-Source: Superstore dataset from Kaggle.
+**Source:** [Sample Superstore](https://www.kaggle.com/datasets/naveenkumar20bps1137/sample-superstore) - Kaggle
 
 Local file:
 
