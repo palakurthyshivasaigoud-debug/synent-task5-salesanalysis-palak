@@ -2,7 +2,7 @@
 ============================================================
   SYNENT TECHNOLOGIES – DATA SCIENCE INTERNSHIP
   Task 5: Sales Data Analysis
-  Name   : Palak
+  Name   : Palakurthy Shiva Sai Goud
   Dataset: Superstore Sales Dataset
 ============================================================
 
@@ -41,6 +41,7 @@ DATA_PATH = os.path.join(_BASE, "data", "Sample - Superstore.csv")
 sns.set_theme(style='whitegrid', palette='muted')
 plt.rcParams['figure.figsize'] = (12, 5)
 plt.rcParams['font.size'] = 12
+PALETTE = ['#4C72B0', '#55A868', '#C44E52', '#8172B2', '#CCB974', '#64B5CD']
 
 os.makedirs('data/charts', exist_ok=True)
 
@@ -230,39 +231,24 @@ print("\n   [Analysis Complete]")
 
 
 # ============================================================
-#  PHASE 4: VISUALIZATION  (5 Focused Charts)
+#  PHASE 4: VISUALIZATION  (6 Charts)
 # ============================================================
 print("\n" + "=" * 60)
 print("  PHASE 4: VISUALIZATION")
 print("=" * 60)
-print("\n   Generating 5 focused charts...")
-print("   Each graph will open on screen. Close the graph window to see the next one.\n")
-
-for file_name in os.listdir('data/charts'):
-    if file_name.lower().endswith('.png'):
-        os.remove(os.path.join('data/charts', file_name))
+print("\n   Generating charts... (close each window to continue)\n")
 
 # Larger base font for readability
-plt.rcParams['font.size'] = 10
-plt.rcParams['axes.titlesize'] = 12
-plt.rcParams['axes.labelsize'] = 10
-
-
-def add_takeaway(fig, lines):
-    """Add a simple insight note below each chart."""
-    fig.subplots_adjust(bottom=0.22)
-    fig.text(
-        0.5, 0.03, "\n".join(lines),
-        ha='center', va='bottom', fontsize=9,
-        bbox=dict(boxstyle='round,pad=0.5', facecolor='#f7f7f7', edgecolor='#cccccc')
-    )
+plt.rcParams['font.size'] = 13
+plt.rcParams['axes.titlesize'] = 15
+plt.rcParams['axes.labelsize'] = 13
 
 
 # ── OBJECTIVE 1: MONTHLY REVENUE TRENDS ─────────────────────
 
 # --- Chart 1: Monthly Revenue + Profit (dual panel) ---
-print(">> Chart 1/5: Monthly Revenue & Profit Trends")
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+print(">> Chart 1/6: Monthly Revenue & Profit Trends")
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
 fig.suptitle('Monthly Revenue & Profit Trends (2014 – 2017)', fontsize=16, fontweight='bold')
 
 # Revenue line
@@ -287,28 +273,22 @@ ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
 ax2.set_xticks(monthly['YearMonth_str'][::step])
 ax2.set_xticklabels(monthly['YearMonth_str'][::step], rotation=45, ha='right', fontsize=11)
 ax2.grid(axis='y', alpha=0.4)
-add_takeaway(fig, [
-    f"Highest revenue month: {best_month} (${monthly['Sales'].max():,.0f})",
-    f"Lowest profit month: {worst_month} (${monthly['Profit'].min():,.0f})"
-])
 
-plt.tight_layout(rect=[0, 0.15, 1, 0.96])
+plt.tight_layout()
 plt.savefig('data/charts/01_monthly_trends.png', dpi=150, bbox_inches='tight')
 plt.show()
-plt.close(fig)
 print("   Saved: 01_monthly_trends.png")
 
 
 # ── OBJECTIVE 2: TOP-SELLING PRODUCTS ───────────────────────
 
 # --- Chart 2: Top 10 Products by Revenue ---
-print("\n>> Chart 2/5: Top 10 Products by Revenue")
+print("\n>> Chart 2/6: Top 10 Products by Revenue")
 top10_prod = df.groupby('Product_Name')['Sales'].sum().sort_values(ascending=False).head(10)
-bottom_product = df.groupby('Product_Name')['Sales'].sum().sort_values().head(1)
 # Shorten long product names for readability
 labels = [n[:40] + '…' if len(n) > 40 else n for n in top10_prod.index[::-1]]
 
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(13, 7))
 bars = ax.barh(labels, top10_prod.values[::-1] / 1e3,
                color=sns.color_palette('Blues_r', 10), edgecolor='white', height=0.6)
 for bar in bars:
@@ -319,24 +299,18 @@ ax.set_xlabel('Total Revenue ($K)', fontsize=13)
 ax.set_title('Top 10 Best-Selling Products by Revenue', fontsize=15, fontweight='bold', pad=12)
 ax.set_xlim(0, top10_prod.max() / 1e3 * 1.15)
 ax.grid(axis='x', alpha=0.4)
-add_takeaway(fig, [
-    f"Highest-selling product: {top10_prod.index[0][:55]} (${top10_prod.iloc[0]:,.0f})",
-    f"Lowest-selling product: {bottom_product.index[0][:55]} (${bottom_product.iloc[0]:,.0f})"
-])
-plt.tight_layout(rect=[0, 0.15, 1, 1])
+plt.tight_layout()
 plt.savefig('data/charts/02_top_products.png', dpi=150, bbox_inches='tight')
 plt.show()
-plt.close(fig)
 print("   Saved: 02_top_products.png")
 
 
-# --- Chart 3: Sales by Category ---
-print("\n>> Chart 3/5: Sales by Category")
+# --- Chart 3: Sales by Category & Sub-Category ---
+print("\n>> Chart 3/6: Sales by Category")
 cat_sales_vals = df.groupby('Category')['Sales'].sum().sort_values(ascending=False)
-cat_profit_vals = df.groupby('Category')['Profit'].sum().sort_values(ascending=False)
 cat_colors = ['#4C72B0', '#55A868', '#C44E52']
 
-fig, ax = plt.subplots(figsize=(7.5, 5))
+fig, ax = plt.subplots(figsize=(9, 5))
 bars = ax.bar(cat_sales_vals.index, cat_sales_vals.values / 1e3,
               color=cat_colors, edgecolor='white', width=0.5)
 for bar in bars:
@@ -349,25 +323,20 @@ ax.set_title('Total Revenue by Category\n(Which category drives the most sales?)
 ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
 ax.set_ylim(0, cat_sales_vals.max() / 1e3 * 1.15)
 ax.grid(axis='y', alpha=0.4)
-add_takeaway(fig, [
-    f"Highest revenue category: {cat_sales_vals.idxmax()} (${cat_sales_vals.max():,.0f})",
-    f"Lowest profit category: {cat_profit_vals.idxmin()} (${cat_profit_vals.min():,.0f})"
-])
-plt.tight_layout(rect=[0, 0.18, 1, 1])
+plt.tight_layout()
 plt.savefig('data/charts/03_category_revenue.png', dpi=150, bbox_inches='tight')
 plt.show()
-plt.close(fig)
 print("   Saved: 03_category_revenue.png")
 
 
 # ── OBJECTIVE 3: PROFIT ANALYSIS ────────────────────────────
 
 # --- Chart 4: Profit by Sub-Category (all, sorted, green/red) ---
-print("\n>> Chart 4/5: Profit by Sub-Category")
+print("\n>> Chart 4/6: Profit by Sub-Category")
 sub_prof = df.groupby('Sub_Category')['Profit'].sum().sort_values()
 bar_colors4 = ['#e05c5c' if v < 0 else '#4caf7d' for v in sub_prof.values]
 
-fig, ax = plt.subplots(figsize=(10, 6.5))
+fig, ax = plt.subplots(figsize=(12, 7))
 bars = ax.barh(sub_prof.index, sub_prof.values / 1e3,
                color=bar_colors4, edgecolor='white', height=0.65)
 ax.axvline(0, color='black', linewidth=1.2)
@@ -381,25 +350,42 @@ ax.set_xlabel('Total Profit ($K)', fontsize=13)
 ax.set_title('Profit by Sub-Category\n(Red bars = LOSS  |  Green bars = PROFIT)',
              fontsize=14, fontweight='bold')
 ax.grid(axis='x', alpha=0.3)
-add_takeaway(fig, [
-    f"Most profitable sub-category: {sub_prof.idxmax()} (${sub_prof.max():,.0f})",
-    f"Biggest loss sub-category: {sub_prof.idxmin()} (${sub_prof.min():,.0f})"
-])
-plt.tight_layout(rect=[0, 0.16, 1, 1])
+plt.tight_layout()
 plt.savefig('data/charts/04_subcategory_profit.png', dpi=150, bbox_inches='tight')
 plt.show()
-plt.close(fig)
 print("   Saved: 04_subcategory_profit.png")
 
 
-# --- Chart 5: Discount Impact on Profit Margin ---
-print("\n>> Chart 5/5: Discount Impact on Profit Margin")
+# --- Chart 5: Profit Margin by Category ---
+print("\n>> Chart 5/6: Profit Margin by Category")
+cat_margin = df.groupby('Category')['Profit_Margin'].mean().sort_values(ascending=False)
+
+fig, ax = plt.subplots(figsize=(9, 5))
+bars = ax.bar(cat_margin.index, cat_margin.values,
+              color=['#4caf7d' if v >= 0 else '#e05c5c' for v in cat_margin.values],
+              edgecolor='white', width=0.5)
+ax.axhline(0, color='black', linewidth=1)
+for bar in bars:
+    h = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width() / 2, h + 0.3,
+            f'{h:.1f}%', ha='center', va='bottom', fontsize=13, fontweight='bold')
+ax.set_ylabel('Average Profit Margin (%)', fontsize=13)
+ax.set_title('Average Profit Margin by Category\n(Which category is most profitable per dollar sold?)',
+             fontsize=14, fontweight='bold')
+ax.set_ylim(0, cat_margin.max() * 1.25)
+ax.grid(axis='y', alpha=0.4)
+plt.tight_layout()
+plt.savefig('data/charts/05_profit_margin_category.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 05_profit_margin_category.png")
+
+
+# --- Chart 6: Discount Impact on Profit Margin ---
+print("\n>> Chart 6/6: Discount Impact on Profit Margin")
 disc_band_avg = df.groupby('Discount_Band', observed=True)['Profit_Margin'].mean()
-best_discount_band = disc_band_avg.idxmax()
-worst_discount_band = disc_band_avg.idxmin()
 bar_colors6 = ['#4caf7d' if v >= 0 else '#e05c5c' for v in disc_band_avg.values]
 
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(10, 5))
 bars = ax.bar(disc_band_avg.index.astype(str), disc_band_avg.values,
               color=bar_colors6, edgecolor='white', width=0.55)
 ax.axhline(0, color='black', linewidth=1.2, linestyle='--')
@@ -411,15 +397,10 @@ ax.set_ylabel('Avg Profit Margin (%)', fontsize=13)
 ax.set_title('How Discounts Destroy Profit\n(Higher discounts = deeper losses)',
              fontsize=14, fontweight='bold')
 ax.grid(axis='y', alpha=0.4)
-add_takeaway(fig, [
-    f"Best margin discount band: {best_discount_band} ({disc_band_avg.max():.1f}%)",
-    f"Worst margin discount band: {worst_discount_band} ({disc_band_avg.min():.1f}%)"
-])
-plt.tight_layout(rect=[0, 0.18, 1, 1])
-plt.savefig('data/charts/05_discount_impact.png', dpi=150, bbox_inches='tight')
+plt.tight_layout()
+plt.savefig('data/charts/06_discount_impact.png', dpi=150, bbox_inches='tight')
 plt.show()
-plt.close(fig)
-print("   Saved: 05_discount_impact.png")
+print("   Saved: 06_discount_impact.png")
 
 print("\n   [Visualization Complete]")
 
@@ -462,6 +443,153 @@ print(f"""
 """)
 
 print("=" * 60)
-print("  5 focused charts saved in: data/charts/")
+print("  All 6 charts saved in: data/charts/")
 print("  Task 5 – Sales Data Analysis Complete!")
 print("=" * 60)
+sys.exit(0)
+
+
+
+fig, ax = plt.subplots(figsize=(14, 5))
+ax.plot(monthly['YearMonth_str'], monthly['Sales'] / 1e3,
+        color='steelblue', linewidth=2.5, marker='o', markersize=4)
+ax.fill_between(monthly['YearMonth_str'], monthly['Sales'] / 1e3,
+                alpha=0.15, color='steelblue')
+step = max(1, len(monthly) // 12)
+ax.set_xticks(monthly['YearMonth_str'][::step])
+ax.set_xticklabels(monthly['YearMonth_str'][::step], rotation=45, ha='right')
+ax.set_title('Monthly Revenue Trend', fontsize=14, pad=12)
+ax.set_xlabel('Month')
+ax.set_ylabel('Revenue ($K)')
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
+plt.tight_layout()
+plt.savefig('data/charts/01_monthly_revenue_trend.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 01_monthly_revenue_trend.png")
+
+
+# --- Chart 2: Monthly Profit Trend ---
+print("\n>> Chart 2/10: Monthly Profit Trend")
+fig, ax = plt.subplots(figsize=(14, 5))
+colors_bar = ['coral' if v < 0 else 'mediumseagreen' for v in monthly['Profit']]
+ax.bar(monthly['YearMonth_str'], monthly['Profit'] / 1e3,
+       color=colors_bar, edgecolor='white', width=0.8)
+ax.axhline(0, color='black', linewidth=0.8, linestyle='--')
+ax.set_xticks(monthly['YearMonth_str'][::step])
+ax.set_xticklabels(monthly['YearMonth_str'][::step], rotation=45, ha='right')
+ax.set_title('Monthly Profit Trend (Green = Profit, Red = Loss)', fontsize=14, pad=12)
+ax.set_xlabel('Month')
+ax.set_ylabel('Profit ($K)')
+ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
+plt.tight_layout()
+plt.savefig('data/charts/02_monthly_profit_trend.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 02_monthly_profit_trend.png")
+
+
+# --- Chart 3: Sales by Category (Pie + Bar) ---
+print("\n>> Chart 3/10: Sales by Category")
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+cat_sales = df.groupby('Category')['Sales'].sum().sort_values(ascending=False)
+axes[0].pie(cat_sales, labels=cat_sales.index, autopct='%1.1f%%',
+            colors=PALETTE[:len(cat_sales)],
+            wedgeprops=dict(edgecolor='white', linewidth=1.5), startangle=140)
+axes[0].set_title('Revenue Share by Category', fontsize=13)
+cat_profit = df.groupby('Category')['Profit'].sum().sort_values(ascending=False)
+bars = axes[1].bar(cat_profit.index, cat_profit.values / 1e3,
+                   color=PALETTE[:len(cat_profit)], edgecolor='white', width=0.5)
+for bar in bars:
+    h = bar.get_height()
+    axes[1].text(bar.get_x() + bar.get_width()/2, h + 0.5,
+                 f'${h:.1f}K', ha='center', va='bottom', fontsize=10)
+axes[1].set_title('Total Profit by Category', fontsize=13)
+axes[1].set_ylabel('Profit ($K)')
+axes[1].yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
+plt.suptitle('Category Performance Overview', fontsize=14, y=1.01)
+plt.tight_layout()
+plt.savefig('data/charts/03_category_performance.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 03_category_performance.png")
+
+
+# --- Chart 4: Top 10 Sub-Categories by Sales ---
+print("\n>> Chart 4/10: Top 10 Sub-Categories by Sales")
+sub_sales = df.groupby('Sub_Category')['Sales'].sum().sort_values(ascending=False).head(10)
+plt.figure(figsize=(11, 5))
+bars = plt.barh(sub_sales.index[::-1], sub_sales.values[::-1] / 1e3,
+                color=sns.color_palette('Blues_r', len(sub_sales)), edgecolor='white')
+for bar in bars:
+    w = bar.get_width()
+    plt.text(w + 0.5, bar.get_y() + bar.get_height()/2,
+             f'${w:.1f}K', va='center', fontsize=9)
+plt.xlabel('Total Sales ($K)')
+plt.title('Top 10 Sub-Categories by Sales Revenue', fontsize=13)
+plt.tight_layout()
+plt.savefig('data/charts/04_subcategory_sales.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 04_subcategory_sales.png")
+
+
+# --- Chart 5: Profit by Sub-Category (Loss in red) ---
+print("\n>> Chart 5/10: Profit by Sub-Category")
+sub_prof = df.groupby('Sub_Category')['Profit'].sum().sort_values()
+colors5  = ['coral' if v < 0 else 'mediumseagreen' for v in sub_prof.values]
+plt.figure(figsize=(12, 6))
+bars = plt.barh(sub_prof.index, sub_prof.values / 1e3, color=colors5, edgecolor='white')
+plt.axvline(0, color='black', linewidth=0.8)
+for bar in bars:
+    w = bar.get_width()
+    x_pos = w + 0.2 if w >= 0 else w - 0.2
+    ha = 'left' if w >= 0 else 'right'
+    plt.text(x_pos, bar.get_y() + bar.get_height()/2,
+             f'${w:.1f}K', va='center', ha=ha, fontsize=8)
+plt.xlabel('Total Profit ($K)')
+plt.title('Profit by Sub-Category  (Red = Loss, Green = Profit)', fontsize=13)
+plt.tight_layout()
+plt.savefig('data/charts/05_subcategory_profit.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 05_subcategory_profit.png")
+
+
+# --- Chart 6: Sales vs Profit Scatter ---
+print("\n>> Chart 6/10: Sales vs Profit Scatter")
+plt.figure(figsize=(10, 6))
+for cat in df['Category'].unique():
+    sub = df[df['Category'] == cat]
+    plt.scatter(sub['Sales'], sub['Profit'], alpha=0.35, s=20, label=cat)
+plt.axhline(0, color='red', linewidth=1, linestyle='--', label='Break-even')
+plt.xlabel('Sales ($)')
+plt.ylabel('Profit ($)')
+plt.title('Sales vs Profit by Category', fontsize=13)
+plt.legend(fontsize=10)
+plt.tight_layout()
+plt.savefig('data/charts/06_sales_vs_profit.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("   Saved: 06_sales_vs_profit.png")
+
+
+# --- Chart 7: Regional Performance ---
+print("\n>> Chart 7/10: Regional Sales & Profit")
+if 'Region' in df.columns:
+    region_df = df.groupby('Region')[['Sales', 'Profit']].sum().reset_index()
+    x = np.arange(len(region_df))
+    width = 0.35
+    fig, ax = plt.subplots(figsize=(10, 5))
+    b1 = ax.bar(x - width/2, region_df['Sales'] / 1e3,  width,
+                label='Sales',  color='steelblue', edgecolor='white')
+    b2 = ax.bar(x + width/2, region_df['Profit'] / 1e3, width,
+                label='Profit', color='mediumseagreen', edgecolor='white')
+    ax.set_xticks(x)
+    ax.set_xticklabels(region_df['Region'])
+    ax.set_ylabel('Amount ($K)')
+    ax.set_title('Sales & Profit by Region', fontsize=13)
+    ax.legend()
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f'${x:.0f}K'))
+    for bar in list(b1) + list(b2):
+        h = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, h + 0.5,
+                f'${h:.0f}K', ha='center', va='bottom', fontsize=8)
+    plt.tight_layout()
+    plt.savefig('data/charts/07_regional_performance.png', dpi=150, bbox_inches='tight')
+    plt.show()
+    print("   Saved: 07_regional_performance.png")

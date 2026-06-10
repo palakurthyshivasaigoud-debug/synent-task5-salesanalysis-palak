@@ -83,6 +83,6 @@ synent-task5-salesanalysis-palak/
 
 ## Author
 
-Palak
+Palakurthy Shiva Sai Goud
 
 Submitted for Synent Technologies Data Science Internship - Task 5.
